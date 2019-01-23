@@ -53,14 +53,14 @@ function checkFile(path) {
 
 let even = true;
 let foundCounter = 0;
-fs.readdirSync('.').forEach((file) => {
+fs.readdirSync('frames').forEach((file) => {
   if (file.slice(-3) === 'jpg') {
     even = !even;
 
-    if (even && checkFile(file)) {
+    if (even && checkFile('frames/' + file)) {
       foundCounter++;
       console.log(file);
-      fs.copyFileSync(file, "goodframes/" + file);
+      fs.copyFileSync('frames/' + file, "goodframes/" + file);
     }
   }
 });
