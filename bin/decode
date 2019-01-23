@@ -1,3 +1,7 @@
 #! /bin/bash
 
-ffmpeg -i "$1" -vf fps=30 -qscale:v 2 frames/thumb%04d.jpg -hide_banner
+rm frames/*.jpg
+rm goodframes/*.jpg
+rm output/*.jpg
+
+ffmpeg -i "$1" -vf fps=15 -qscale:v 2 frames/thumb%04d.jpg -hide_banner
