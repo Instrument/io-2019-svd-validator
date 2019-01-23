@@ -1,0 +1,68 @@
+#! /usr/bin/env node
+
+const jpeg = require('jpeg-js');
+const fs = require('fs');
+
+const mult = 4;
+const maxRow = 40;
+const maxCol = 40;
+
+function checkFile(path) {
+  const jpegData = fs.readFileSync(path);
+  const rawImageData = jpeg.decode(jpegData, true);
+  const widthMult = rawImageData.width * mult;
+  const heightMult = rawImageData.height * mult;
+
+  let output = [];
+  let numBlack = 0;
+
+  for (let i = 0; i < rawImageData.data.length; i += mult) {
+    const row = Math.floor(i / widthMult);
+    const col = (i % widthMult) / mult;
+    // console.log(col, row);
+
+    if (row >= maxRow && col >= maxCol) { break; }
+    if (row >= maxRow || col >= maxCol) { continue; }
+
+    const r = rawImageData.data[i];
+    const g = rawImageData.data[i+1]
+    const b = rawImageData.data[i+2];
+    const luma = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 256;
+
+    if (!output[row]) { output[row] = []; }
+
+    output[row][col] = luma < 0.25;
+
+    if (output[row][col]) {
+      numBlack++;
+      // console.log(col, row, luma);
+    }
+  }
+
+  // for (let i = 0; i < output.length; i++) {
+  //   const row = output[i].map((isDark) => isDark ? "@" : " ");
+  //   console.log(row.join(""));
+  // }
+
+  const ratioBlack = numBlack / (maxCol * maxRow);
+  // console.log(ratioBlack);
+  if ((ratioBlack > 0.013) && (ratioBlack < 0.020)) {
+    return true;
+  }
+}
+
+let even = true;
+let foundCounter = 0;
+fs.readdirSync('.').forEach((file) => {
+  if (file.slice(-3) === 'jpg') {
+    even = !even;
+
+    if (even && checkFile(file)) {
+      foundCounter++;
+      console.log(file);
+      fs.copyFileSync(file, "goodframes/" + file);
+    }
+  }
+});
+
+console.log("Found " + foundCounter + " frames");
