@@ -1,0 +1,102 @@
+#! /usr/bin/env node
+
+const jpeg = require('jpeg-js');
+const fs = require('fs');
+
+const mult = 4;
+const gridSize = 20;
+const edges = 40;
+const maxLuma = 0.3;
+
+const files = {
+  '1.jpg': [[-36, 19], [-41, 9], [-37, -3], [-37, 2], [-25, 16]],
+  '2.jpg': [[-33, 10], [-28, 11], [-33, 2], [-28, 6], [-29, 9], [-23, 9]],
+  '3.jpg': [[-4, 19], [-10, 5], [9, 11], [-6, 15], [-1, 6], [4, 12], [0, 20], [13, 9], [-7, -1]],
+  '4.jpg': [[28, 10], [31, 4], [39, 9], [33, 10], [24, 8], [29, 15], [34, 6], [35, 8]],
+  '5.jpg': [[-23, -21], [-20, -15], [-8, -9], [-15, -18]],
+  '6.jpg': [[22, -4], [24, -15], [24, -8], [24, -12], [24, -17], [18, -20]], 
+}
+
+function checkFile(path) {
+  const jpegData = fs.readFileSync(path);
+  const rawImageData = jpeg.decode(jpegData, true);
+  const widthMult = rawImageData.width * mult;
+  const heightMult = rawImageData.height * mult;
+
+  const midPointX = rawImageData.width / 2;
+  const midPointY = rawImageData.height / 2;
+
+  let output = [];
+
+  for (let i = 0; i < rawImageData.data.length; i += mult) {
+    const row = Math.floor(i / widthMult);
+    const col = (i % widthMult) / mult;
+
+    // Avoid gutters
+    if (col <= edges) { continue; }
+    if (col >= (rawImageData.width - edges)) { continue; }
+    if (row <= edges) { continue; }
+    if (row >= (rawImageData.height - edges)) { continue; }
+
+    const r = rawImageData.data[i];
+    const g = rawImageData.data[i+1]
+    const b = rawImageData.data[i+2];
+    const luma = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 256;
+
+    if (luma < maxLuma) {
+      const distanceFromX = col % gridSize;
+      const distanceFromY = row % gridSize;
+
+      const x = (distanceFromX >= gridSize / 2)
+        ? col + (gridSize - distanceFromX)
+        : col - distanceFromX;
+
+      const y = (distanceFromY >= gridSize / 2)
+        ? row + (gridSize - distanceFromY)
+        : row - distanceFromY;
+      
+      const xOnGrid = ((x - midPointX) / gridSize);
+      const yOnGrid = -((y - midPointY) / gridSize);
+
+      output.push([xOnGrid, yOnGrid]);
+    }
+
+  }
+
+  // "Unique"
+  return output.reduce((sum, p) => {
+    const alreadyExists = sum.find((s) => s[0] === p[0] && s[1] === p[1]);
+
+    if (!alreadyExists) { 
+      sum.push(p);
+    }
+
+    return sum;
+  }, []);
+}
+
+Object.keys(files).forEach((path) => {
+  if (path.slice(-3) === 'jpg') {
+    const points = checkFile('dots/' + path);
+    const correct = files[path];
+
+    const sameLength = points.length === correct.length;
+
+    if (!sameLength) {
+      console.assert(sameLength, path + ' has ' + points.length + ' points, but is supposed to have ' + correct.length + ' points');
+      return;
+    }
+
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
+      const found = correct.find((c) => c[0] === p[0] && c[1] === p[1]);
+
+      if (!found) {
+        console.assert(found, path + ' has point (' + p[0] + ',' + p[1] + '), but it is not a valid point');
+        return;
+      }
+    }
+  
+    console.log(path + ' validated');
+  }
+});

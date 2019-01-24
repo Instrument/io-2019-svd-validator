@@ -1,4 +1,6 @@
 .DS_Store
-*.jpg
+frames/*.jpg
+goodframes/*.jpg
+output/*.jpg
 package-lock.json
 node_modules
