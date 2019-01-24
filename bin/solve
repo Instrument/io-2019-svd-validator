@@ -3,6 +3,8 @@
 const curves = require('../curves.json');
 const fragments = require('../fragments.json');
 const results = require('../results.json');
+const words = require('../lines.json').map((line) => line.split(' '));
+const correctWords = ['why', 'was', 'six', 'afraid', 'of', 'seven'];
 
 const xDivisor = 14;
 const yDivisor = 12;
@@ -65,6 +67,28 @@ Object.keys(curves).forEach((name) => {
     console.assert(
       matchedCoords,
       name + ' remainder returned [' + finalCoords[0] + ',' + finalCoords[1] + '], but expected [' + coords[0] + ',' + coords[1] + ']'
+    );
+    return;
+  }
+
+  const correctIndex = parseInt(name, 10) - 1;
+  const correctWord = correctWords[correctIndex];
+
+  const yIndex = finalCoords[1] > 0
+    ? finalCoords[1]
+    : yDivisor + finalCoords[1];
+
+  const xIndex = finalCoords[0] > 0
+    ? finalCoords[0]
+    : words[yIndex].length + finalCoords[0];
+
+  const foundWord = words[yIndex][xIndex].replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").toLowerCase();
+  const matchedWord = correctWord === foundWord;
+
+  if (!matchedWord) {
+    console.assert(
+      matchedWord,
+      name + ' word returned "' + foundWord + '", but expected "' + correctWord + '"'
     );
     return;
   }
