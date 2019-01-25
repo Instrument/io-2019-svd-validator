@@ -31,7 +31,7 @@ function checkFile(path) {
 
     if (!output[row]) { output[row] = []; }
 
-    output[row][col] = luma < 0.25;
+    output[row][col] = luma < 0.80;
 
     if (output[row][col]) {
       numBlack++;
@@ -46,7 +46,7 @@ function checkFile(path) {
 
   const ratioBlack = numBlack / (maxCol * maxRow);
   // console.log(ratioBlack);
-  if ((ratioBlack > 0.013) && (ratioBlack < 0.020)) {
+  if ((ratioBlack > 0.010) && (ratioBlack < 0.020)) {
     return true;
   }
 }
