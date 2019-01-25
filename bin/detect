@@ -4,8 +4,8 @@ const jpeg = require('jpeg-js');
 const fs = require('fs');
 
 const mult = 4;
-const maxRow = 40;
-const maxCol = 40;
+const maxRow = 30;
+const maxCol = 30;
 
 function checkFile(path) {
   const jpegData = fs.readFileSync(path);
@@ -14,7 +14,7 @@ function checkFile(path) {
   const heightMult = rawImageData.height * mult;
 
   let output = [];
-  let numBlack = 0;
+  let numDark = 0;
 
   for (let i = 0; i < rawImageData.data.length; i += mult) {
     const row = Math.floor(i / widthMult);
@@ -32,10 +32,10 @@ function checkFile(path) {
     if (!output[row]) { output[row] = []; }
 
     output[row][col] = luma < 0.80;
+    // console.log(col, row, luma);
 
     if (output[row][col]) {
-      numBlack++;
-      // console.log(col, row, luma);
+      numDark++;
     }
   }
 
@@ -44,9 +44,9 @@ function checkFile(path) {
   //   console.log(row.join(""));
   // }
 
-  const ratioBlack = numBlack / (maxCol * maxRow);
-  // console.log(ratioBlack);
-  if ((ratioBlack > 0.010) && (ratioBlack < 0.020)) {
+  const ratioDark = numDark / (maxCol * maxRow);
+  // console.log(ratioDark);
+  if ((ratioDark > 0.010) && (ratioDark < 0.030)) {
     return true;
   }
 }
