@@ -1,14 +1,14 @@
 #! /usr/bin/env node
 
-const jpeg = require('jpeg-js');
-const fs = require('fs');
+const jpeg = require("jpeg-js");
+const fs = require("fs");
 
 const mult = 4;
 const gridSize = 20;
 const edges = 40;
 const maxLuma = 0.3;
 
-const curves = require('../curves.json');
+const curves = require("../data/curves.json");
 
 function checkFile(path) {
   const jpegData = fs.readFileSync(path);
@@ -26,41 +26,50 @@ function checkFile(path) {
     const col = (i % widthMult) / mult;
 
     // Avoid gutters
-    if (col <= edges) { continue; }
-    if (col >= (rawImageData.width - edges)) { continue; }
-    if (row <= edges) { continue; }
-    if (row >= (rawImageData.height - edges)) { continue; }
+    if (col <= edges) {
+      continue;
+    }
+    if (col >= rawImageData.width - edges) {
+      continue;
+    }
+    if (row <= edges) {
+      continue;
+    }
+    if (row >= rawImageData.height - edges) {
+      continue;
+    }
 
     const r = rawImageData.data[i];
-    const g = rawImageData.data[i+1]
-    const b = rawImageData.data[i+2];
+    const g = rawImageData.data[i + 1];
+    const b = rawImageData.data[i + 2];
     const luma = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 256;
 
     if (luma < maxLuma) {
       const distanceFromX = col % gridSize;
       const distanceFromY = row % gridSize;
 
-      const x = (distanceFromX >= gridSize / 2)
-        ? col + (gridSize - distanceFromX)
-        : col - distanceFromX;
+      const x =
+        distanceFromX >= gridSize / 2
+          ? col + (gridSize - distanceFromX)
+          : col - distanceFromX;
 
-      const y = (distanceFromY >= gridSize / 2)
-        ? row + (gridSize - distanceFromY)
-        : row - distanceFromY;
-      
-      const xOnGrid = ((x - midPointX) / gridSize);
+      const y =
+        distanceFromY >= gridSize / 2
+          ? row + (gridSize - distanceFromY)
+          : row - distanceFromY;
+
+      const xOnGrid = (x - midPointX) / gridSize;
       const yOnGrid = -((y - midPointY) / gridSize);
 
       output.push([xOnGrid, yOnGrid]);
     }
-
   }
 
   // "Unique"
   return output.reduce((sum, p) => {
-    const alreadyExists = sum.find((s) => s[0] === p[0] && s[1] === p[1]);
+    const alreadyExists = sum.find(s => s[0] === p[0] && s[1] === p[1]);
 
-    if (!alreadyExists) { 
+    if (!alreadyExists) {
       sum.push(p);
     }
 
@@ -68,26 +77,42 @@ function checkFile(path) {
   }, []);
 }
 
-Object.keys(curves).forEach((name) => {
-  const points = checkFile('dots/' + name + '.jpg');
+Object.keys(curves).forEach(name => {
+  const points = checkFile("dots/" + name + ".jpg");
   const correct = curves[name];
 
   const sameLength = points.length === correct.length;
 
   if (!sameLength) {
-    console.assert(sameLength, name + ' has ' + points.length + ' points, but is supposed to have ' + correct.length + ' points');
+    console.assert(
+      sameLength,
+      name +
+        " has " +
+        points.length +
+        " points, but is supposed to have " +
+        correct.length +
+        " points"
+    );
     return;
   }
 
   for (let i = 0; i < points.length; i++) {
     const p = points[i];
-    const found = correct.find((c) => c[0] === p[0] && c[1] === p[1]);
+    const found = correct.find(c => c[0] === p[0] && c[1] === p[1]);
 
     if (!found) {
-      console.assert(found, name + ' has point (' + p[0] + ',' + p[1] + '), but it is not a valid point');
+      console.assert(
+        found,
+        name +
+          " has point (" +
+          p[0] +
+          "," +
+          p[1] +
+          "), but it is not a valid point"
+      );
       return;
     }
   }
 
-  console.log(name + ' validated');
+  console.log(name + " validated");
 });

@@ -1,19 +1,45 @@
-# Usage
+# Google I/O 2019 Transmission Debugger
 
-Decode video (into `frames` directory):
+Install tools:
 
 ```bash
-./bin/decode ~/Downloads/SVD_09.mp4
+npm install
 ```
 
-Detect cross frames (into `goodframes` directory):
+## Decode video (into `frames` directory):
+
+```bash
+./bin/decode svd_720.mp4
+```
+
+## Detect cross frames (into `goodframes` directory):
 
 ```bash
 ./bin/detect
 ```
 
-Build blended frame (into `output` directory):
+## Build blended frame (into `output` directory):
 
 ```bash
 ./bin/merge
 ```
+
+## Test Math in Frames
+
+```bash
+./bin/finddots
+```
+
+## Test With Regard To The Poem
+
+```bash
+./bin/solve
+```
+
+## Play Transmission in Chrome Console
+
+```bash
+python -m SimpleHTTPServer 1234
+```
+
+Then open http://localhost:1234/dance/

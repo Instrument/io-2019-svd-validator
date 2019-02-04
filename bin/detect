@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
-const jpeg = require('jpeg-js');
-const fs = require('fs');
+const jpeg = require("jpeg-js");
+const fs = require("fs");
 
 const mult = 4;
 const maxRow = 30;
@@ -21,17 +21,23 @@ function checkFile(path) {
     const col = (i % widthMult) / mult;
     // console.log(col, row);
 
-    if (row >= maxRow && col >= maxCol) { break; }
-    if (row >= maxRow || col >= maxCol) { continue; }
+    if (row >= maxRow && col >= maxCol) {
+      break;
+    }
+    if (row >= maxRow || col >= maxCol) {
+      continue;
+    }
 
     const r = rawImageData.data[i];
-    const g = rawImageData.data[i+1]
-    const b = rawImageData.data[i+2];
+    const g = rawImageData.data[i + 1];
+    const b = rawImageData.data[i + 2];
     const luma = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 256;
 
-    if (!output[row]) { output[row] = []; }
+    if (!output[row]) {
+      output[row] = [];
+    }
 
-    output[row][col] = luma < 0.80;
+    output[row][col] = luma < 0.8;
     // console.log(col, row, luma);
 
     if (output[row][col]) {
@@ -46,18 +52,18 @@ function checkFile(path) {
 
   const ratioDark = numDark / (maxCol * maxRow);
   // console.log(ratioDark);
-  if ((ratioDark > 0.010) && (ratioDark < 0.030)) {
+  if (ratioDark > 0.01 && ratioDark < 0.03) {
     return true;
   }
 }
 
 let foundCounter = 0;
-fs.readdirSync('frames').forEach((file) => {
-  if (file.slice(-3) === 'jpg') {
-    if (checkFile('frames/' + file)) {
+fs.readdirSync("frames").forEach(file => {
+  if (file.slice(-3) === "jpg") {
+    if (checkFile("frames/" + file)) {
       foundCounter++;
       console.log(file);
-      fs.copyFileSync('frames/' + file, "goodframes/" + file);
+      fs.copyFileSync("frames/" + file, "goodframes/" + file);
     }
   }
 });

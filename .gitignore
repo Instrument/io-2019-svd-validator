@@ -4,4 +4,3 @@ goodframes/*.jpg
 output/*.jpg
 package-lock.json
 node_modules
-*.mp4

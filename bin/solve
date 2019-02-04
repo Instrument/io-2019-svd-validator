@@ -1,19 +1,19 @@
 #! /usr/bin/env node
 
-const curves = require('../curves.json');
-const fragments = require('../fragments.json');
-const results = require('../results.json');
-const words = require('../lines.json').map((line) => line.split(' '));
-const correctWords = ['why', 'was', 'six', 'afraid', 'of', 'seven'];
+const curves = require("../data/curves.json");
+const fragments = require("../data/fragments.json");
+const results = require("../data/results.json");
+const words = require("../data/lines.json").map(line => line.split(" "));
+const correctWords = ["why", "was", "six", "afraid", "of", "seven"];
 
 const xDivisor = 14;
 const yDivisor = 12;
 
 function calculateControls(p0, t1, t2, p3) {
-  const p1x = Math.round((-5*p0[0] + 18*t1[0] - 9*t2[0] + 2*p3[0])/6);
-  const p1y = Math.round((-5*p0[1] + 18*t1[1] - 9*t2[1] + 2*p3[1])/6);
-  const p2x = Math.round((2*p0[0] - 9*t1[0] + 18*t2[0] - 5*p3[0])/6);
-  const p2y = Math.round((2*p0[1] - 9*t1[1] + 18*t2[1] - 5*p3[1])/6);
+  const p1x = Math.round((-5 * p0[0] + 18 * t1[0] - 9 * t2[0] + 2 * p3[0]) / 6);
+  const p1y = Math.round((-5 * p0[1] + 18 * t1[1] - 9 * t2[1] + 2 * p3[1]) / 6);
+  const p2x = Math.round((2 * p0[0] - 9 * t1[0] + 18 * t2[0] - 5 * p3[0]) / 6);
+  const p2y = Math.round((2 * p0[1] - 9 * t1[1] + 18 * t2[1] - 5 * p3[1]) / 6);
 
   return [[p1x, p1y], [p2x, p2y]];
 }
@@ -30,10 +30,10 @@ function sumCurves(name) {
     const point = points[i];
 
     const p0 = lastEnd;
-    const { t1, t2 } = fragment[i-1];
-    const p3 = lastEnd = point;
+    const { t1, t2 } = fragment[i - 1];
+    const p3 = (lastEnd = point);
 
-    const [ p1, p2 ] = calculateControls(p0, t1, t2, p3);
+    const [p1, p2] = calculateControls(p0, t1, t2, p3);
 
     sum[0] += p0[0] + p1[0] + p2[0] + p3[0];
     sum[1] += p0[1] + p1[1] + p2[1] + p3[1];
@@ -42,7 +42,7 @@ function sumCurves(name) {
   return sum;
 }
 
-Object.keys(curves).forEach((name) => {
+Object.keys(curves).forEach(name => {
   const finalSum = sumCurves(name);
   const { sum, coords } = results[name];
 
@@ -51,22 +51,38 @@ Object.keys(curves).forEach((name) => {
   if (!matchedSum) {
     console.assert(
       matchedSum,
-      name + ' sum returned [' + finalSum[0] + ',' + finalSum[1] + '], but expected [' + sum[0] + ',' + sum[1] + ']'
+      name +
+        " sum returned [" +
+        finalSum[0] +
+        "," +
+        finalSum[1] +
+        "], but expected [" +
+        sum[0] +
+        "," +
+        sum[1] +
+        "]"
     );
     return;
   }
 
-  const finalCoords = [
-    finalSum[0] % xDivisor,
-    finalSum[1] % yDivisor,
-  ];
+  const finalCoords = [finalSum[0] % xDivisor, finalSum[1] % yDivisor];
 
-  const matchedCoords = finalCoords[0] === coords[0] && finalCoords[1] === coords[1];
+  const matchedCoords =
+    finalCoords[0] === coords[0] && finalCoords[1] === coords[1];
 
   if (!matchedCoords) {
     console.assert(
       matchedCoords,
-      name + ' remainder returned [' + finalCoords[0] + ',' + finalCoords[1] + '], but expected [' + coords[0] + ',' + coords[1] + ']'
+      name +
+        " remainder returned [" +
+        finalCoords[0] +
+        "," +
+        finalCoords[1] +
+        "], but expected [" +
+        coords[0] +
+        "," +
+        coords[1] +
+        "]"
     );
     return;
   }
@@ -74,24 +90,29 @@ Object.keys(curves).forEach((name) => {
   const correctIndex = parseInt(name, 10) - 1;
   const correctWord = correctWords[correctIndex];
 
-  const yIndex = finalCoords[1] > 0
-    ? finalCoords[1]
-    : yDivisor + finalCoords[1];
+  const yIndex =
+    finalCoords[1] > 0 ? finalCoords[1] : yDivisor + finalCoords[1];
 
-  const xIndex = finalCoords[0] > 0
-    ? finalCoords[0]
-    : words[yIndex].length + finalCoords[0];
+  const xIndex =
+    finalCoords[0] > 0 ? finalCoords[0] : words[yIndex].length + finalCoords[0];
 
-  const foundWord = words[yIndex][xIndex].replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").toLowerCase();
+  const foundWord = words[yIndex][xIndex]
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+    .toLowerCase();
   const matchedWord = correctWord === foundWord;
 
   if (!matchedWord) {
     console.assert(
       matchedWord,
-      name + ' word returned "' + foundWord + '", but expected "' + correctWord + '"'
+      name +
+        ' word returned "' +
+        foundWord +
+        '", but expected "' +
+        correctWord +
+        '"'
     );
     return;
   }
 
-  console.log(name + ' evaluated correctly');
+  console.log(name + " evaluated correctly");
 });

@@ -1,7 +1,5 @@
 #! /bin/bash
 
-rm frames/*.jpg
-rm goodframes/*.jpg
-rm output/*.jpg
+./bin/clean
 
 ffmpeg -i "$1" -vf fps=15 -qscale:v 2 frames/thumb%04d.jpg -hide_banner

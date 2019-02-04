@@ -1,5 +1,8 @@
 {
-  "name": "frames",
+  "name": "io-2019-svd-validator",
+  "author": {
+    "name": "Instrument"
+  },
   "dependencies": {
     "jimp": "^0.6.0",
     "jpeg-js": "^0.3.4"
